@@ -1,0 +1,47 @@
+version: "3.2"
+
+services:
+  backup:
+    build:
+      context: ./
+      dockerfile: Dockerfile_mysql
+    container_name: proyecto-laravel-backup
+    env_file:
+      - ./src/.env
+    depends_on:
+      - mysql
+    command: >
+      /bin/bash -c "
+        while ! nc -z $${DB_HOST} $${DB_PORT} ; do
+            sleep 5s
+        done
+        mysqldump -u$${DB_USERNAME} -p$${DB_PASSWORD} -h$${DB_HOST} $${DB_DATABASE} | gzip > /backup/$${DB_DATABASE}.dump.gz
+      "
+    networks:
+      - proyecto-laravel-internal
+    volumes:
+      - ./data/backup:/backup
+
+  restore:
+    build:
+      context: ./
+      dockerfile: Dockerfile_mysql
+    container_name: proyecto-laravel-restore
+    env_file:
+      - ./src/.env
+    depends_on:
+      - mysql
+    command: >
+      /bin/bash -c "
+        while ! nc -z $${DB_HOST} $${DB_PORT} ; do
+            sleep 5s
+        done
+        gunzip -c /backup/$${DB_DATABASE}.dump.gz | mysql -u$${DB_USERNAME} -p$${DB_PASSWORD} -h$${DB_HOST}
+      "
+    networks:
+      - proyecto-laravel-internal
+    volumes:
+      - ./data/backup:/backup
+
+networks:
+  proyecto-laravel-internal: {}

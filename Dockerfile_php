@@ -1,0 +1,24 @@
+FROM php:7.3-cli
+
+WORKDIR /app
+
+RUN apt-get -qq update && \
+    apt-get -qq install ca-certificates gettext locales curl apt-transport-https unzip git netcat && \
+    docker-php-ext-install bcmath pdo_mysql && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
+    echo "es_ES.UTF-8 UTF-8" >> /etc/locale.gen
+RUN ln -fs /usr/share/zoneinfo/CET /etc/localtime
+
+RUN composer global require hirak/prestissimo
+
+RUN mkdir /app-data
+COPY src/ /app-data/
+RUN cd /app-data && composer install
+
+COPY entrypoint.sh /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["bash"]

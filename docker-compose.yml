@@ -1,0 +1,76 @@
+version: "3.2"
+
+services:
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    container_name: proyecto-laravel-nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - proyecto-laravel-internal
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./certs:/etc/nginx/certs
+    depends_on:
+      - proyecto-laravel-backend
+      - proyecto-laravel-frontend
+
+  proyecto-laravel-backend:
+    build:
+      context: ./
+      dockerfile: Dockerfile_php
+    container_name: proyecto-laravel-backend
+    env_file:
+      - ./src/.env
+    command: ["run-artisanserver"]
+    stdin_open: true
+    tty: true
+    networks:
+      - proyecto-laravel-internal
+    ports:
+      - 8080:8000
+    environment:
+      - VIRTUAL_HOST=proyecto-laravel.dev
+      - VIRTUAL_PORT=8000
+    depends_on:
+      - redis
+      - mysql
+    volumes:
+      - ./src:/app/
+
+  proyecto-laravel-frontend:
+    build:
+      context: ./
+      dockerfile: Dockerfile_node
+    container_name: proyecto-laravel-frontend
+    env_file:
+      - ./src/.env
+    command: ["run-npmwatch"]
+    networks:
+      - proyecto-laravel-internal
+    volumes:
+      - ./src:/app/
+
+  mysql:
+    build:
+      context: ./
+      dockerfile: Dockerfile_mysql
+    container_name: proyecto-laravel-mysql
+    env_file:
+      - ./src/.env
+    networks:
+      - proyecto-laravel-internal
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+
+  redis:
+    image: redis:3.2.8-alpine
+    container_name: proyecto-laravel-redis
+    volumes:
+      - ./data/redis:/data
+    networks:
+      - proyecto-laravel-internal
+
+networks:
+  proyecto-laravel-internal: {}

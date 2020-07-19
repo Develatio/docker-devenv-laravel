@@ -1,0 +1,19 @@
+FROM node:12
+
+WORKDIR /app
+
+RUN apt-get -qq update && \
+    apt-get -qq install ca-certificates netcat && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
+    echo "es_ES.UTF-8 UTF-8" >> /etc/locale.gen
+RUN ln -fs /usr/share/zoneinfo/CET /etc/localtime
+
+RUN mkdir /app-data
+COPY src/ /app-data/
+RUN cd /app-data && npm install
+
+COPY entrypoint.sh /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["bash"]

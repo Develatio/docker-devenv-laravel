@@ -1,0 +1,41 @@
+version: "3.2"
+
+services:
+  proyecto-laravel-tests:
+    build:
+      context: ./
+      dockerfile: Dockerfile_php
+    container_name: proyecto-laravel-tests
+    env_file:
+      - ./src/.env
+      - ./src/.env.tests
+    networks:
+      - proyecto-laravel-internal
+    depends_on:
+      - redis-tests
+      - mysql-tests
+    volumes:
+      - ./src:/app/
+
+  mysql-tests:
+    build:
+      context: ./
+      dockerfile: Dockerfile_mysql
+    container_name: proyecto-laravel-mysql-tests
+    env_file:
+      - ./src/.env.tests
+    networks:
+      - proyecto-laravel-internal
+    volumes:
+      - ./data/mysql-tests:/var/lib/mysql
+
+  redis-tests:
+    image: redis:3.2.8-alpine
+    container_name: proyecto-laravel-redis-tests
+    volumes:
+      - ./data/redis-tests:/data
+    networks:
+      - proyecto-laravel-internal
+
+networks:
+  proyecto-laravel-internal: {}

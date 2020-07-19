@@ -1,0 +1,6 @@
+**/.pyc
+**/__pycache__
+./certs
+./data
+./src/vendor
+./src/node_modules
