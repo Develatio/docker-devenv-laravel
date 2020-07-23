@@ -2,13 +2,13 @@
 
 ## What is this?
 
-This is a docker development environment focused on Python / Laravel.
+This is a docker development environment focused on PHP / Laravel.
 
 A `Makefile` is provided, it contains targets for the most common tasks.
 
 ## Why should I use it?
 
-It provides a well tested and fully functional working development environment for Python / Laravel projects. It also has some extra features, like:
+It provides a well tested and fully functional working development environment for PHP / Laravel projects. It also has some extra features, like:
 
 * HTTPS by default (with valid certificates if you run `make install_certs`).
 * Commands for creating and restoring backups.
