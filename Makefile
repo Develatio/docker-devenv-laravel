@@ -38,7 +38,7 @@ shell:
 	docker-compose -f docker-compose.yml run --rm proyecto-laravel-backend php artisan tinker
 
 attach:
-	docker attach `docker-compose -f docker-compose.yml ps -q proyecto-laravel-backend`
+	docker attach `docker container inspect proyecto-laravel-backend -f '{{.Id}}'`
 
 logs:
 	docker-compose -f docker-compose.yml logs --tail 250 -f ${ARGS}
